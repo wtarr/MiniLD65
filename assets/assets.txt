@@ -4,13 +4,6 @@ d:buttons:0:application/unknown
 i:buttons/btnDown.png:1164:image/png
 i:buttons/btnIdle.png:1172:image/png
 i:buttons/btnOver.png:1170:image/png
-d:imgs:0:application/unknown
-i:imgs/fruit.png:191:image/png
-i:imgs/head.png:169:image/png
-i:imgs/map.png:7766:image/png
-i:imgs/obstacle.png:155:image/png
-i:imgs/sand.png:155:image/png
-i:imgs/tail.png:144:image/png
 d:title:0:application/unknown
 i:title/gameTitle.png:9808:image/png
 t:com/badlogic/gdx/graphics/g3d/particles/particles.fragment.glsl:770:application/unknown
