@@ -1,6 +1,7 @@
 package com.bugsandcode.snake;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
@@ -10,6 +11,8 @@ import com.badlogic.gdx.math.Rectangle;
  */
 public class Fruit {
 
+    private Texture texture;
+
     private Rectangle boundingRect;
 
     public Rectangle getBoundingRect()
@@ -17,9 +20,10 @@ public class Fruit {
         return boundingRect;
     }
 
-    public Fruit(float posX, float posY)
+    public Fruit(float posX, float posY, Texture texture)
     {
         boundingRect = new Rectangle(posX, posY, MainGame.GRID_CELL, MainGame.GRID_CELL);
+        this.texture = texture;
     }
 
     public float getX()
@@ -32,9 +36,9 @@ public class Fruit {
         return boundingRect.y;
     }
 
-    public void render(Batch batchx)
+    public void render(Batch batch)
     {
-
+        batch.draw(texture, boundingRect.getX(), boundingRect.getY());
     }
 
     public void renderDebug(ShapeRenderer shapeRenderer)

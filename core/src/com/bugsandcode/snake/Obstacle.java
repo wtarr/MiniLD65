@@ -14,8 +14,9 @@ public class Obstacle {
     private Rectangle boundingRect;
     private Texture texture;
 
-    public Obstacle(float posx, float posy) {
+    public Obstacle(float posx, float posy, Texture texture) {
         boundingRect = new Rectangle(posx, posy, MainGame.GRID_CELL, MainGame.GRID_CELL);
+        this.texture = texture;
     }
 
     public Rectangle getBoundingRect()
@@ -26,14 +27,14 @@ public class Obstacle {
     public void renderDebug(ShapeRenderer shapeRenderer)
     {
         // todo
-        shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.GOLD);
-        shapeRenderer.rect(boundingRect.getX(), boundingRect.getY(), boundingRect.width, boundingRect.getHeight());
+        //shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
+        //shapeRenderer.setColor(Color.GOLD);
+        //shapeRenderer.rect(boundingRect.getX(), boundingRect.getY(), boundingRect.width, boundingRect.getHeight());
     }
 
     public void render(Batch batch)
     {
-        // todo
+        batch.draw(texture, boundingRect.getX(), boundingRect.getY());
     }
 
     public float getX()

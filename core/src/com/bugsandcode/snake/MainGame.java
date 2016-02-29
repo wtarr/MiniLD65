@@ -77,6 +77,13 @@ public class MainGame extends ScreenAdapter {
         this.snakeGame = snakeGame;
     }
 
+    // Textures
+    Texture background =  new Texture(Gdx.files.internal("imgs/map.png"));
+    Texture fruitTexture = new Texture(Gdx.files.internal("imgs/fruit.png"));
+    Texture obstacleTexture = new Texture(Gdx.files.internal("imgs/obstacle.png"));
+    Texture headTexture = new Texture(Gdx.files.internal("imgs/head.png"));
+    Texture tailTexture = new Texture(Gdx.files.internal("imgs/tail.png"));
+
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
@@ -95,18 +102,27 @@ public class MainGame extends ScreenAdapter {
         shapeRenderer = new ShapeRenderer();
 
         // snake starts with 3 parts (1 head + 2 body) travelling in the direction RIGHT)
-        head = new SnakePart(SnakePartType.Head, 48, 16);
+        head = new SnakePart(SnakePartType.Head, 48, 16, headTexture);
 
-        snake.add(new SnakePart(SnakePartType.Body, 16, 16)); // 0
-        snake.add(new SnakePart(SnakePartType.Body, 32, 16)); // 1
+        snake.add(new SnakePart(SnakePartType.Body, 16, 16, tailTexture)); // 0
+        snake.add(new SnakePart(SnakePartType.Body, 32, 16, tailTexture)); // 1
 
         bitmapFont = new BitmapFont();
 
-        if (GameDifficulty == Difficulty.Level2 || GameDifficulty == Difficulty.Level3)
+        switch (GameDifficulty)
         {
-            placeBoundary();
-        }
+            case Level1:
+                break;
+            case Level2:
+                placeBoundary();
+                minNextMoveAllowed = 0.08f;
+                break;
+            case Level3:
+                placeBoundary();
+                minNextMoveAllowed = 0.08f;
+                break;
 
+        }
     }
 
     @Override
@@ -154,7 +170,7 @@ public class MainGame extends ScreenAdapter {
             }
         } else {
             // todo render text "game over"
-            Gdx.app.log("MAIN", "GAME OVER");
+            // Gdx.app.log("MAIN", "GAME OVER");
         }
     }
 
@@ -178,7 +194,7 @@ public class MainGame extends ScreenAdapter {
         if (head.getBoundingRect().overlaps(fruit.getBoundingRect())) {
             SnakePart tail = snake.get(0);
 
-            SnakePart newTail = new SnakePart(SnakePartType.Body, tail.getPosx(), tail.getPosy());
+            SnakePart newTail = new SnakePart(SnakePartType.Body, tail.getPosx(), tail.getPosy(), tailTexture);
 
             snake.insert(0, newTail);
 
@@ -189,7 +205,15 @@ public class MainGame extends ScreenAdapter {
             if (score >= nextSpeedIncrease && minNextMoveAllowed > 0.01f) {
                 nextSpeedIncrease += 100;
                 minNextMoveAllowed -= 0.0005f;
-                Gdx.app.log("MAIN", "Speed increase! " + Float.toString(minNextMoveAllowed) + " Next increase " + Integer.toString(nextSpeedIncrease));
+                // Gdx.app.log("MAIN", "Speed increase! " + Float.toString(minNextMoveAllowed) + " Next increase " + Integer.toString(nextSpeedIncrease));
+
+                if (GameDifficulty == Difficulty.Level3)
+                {
+                    // place a block
+                    Vector2 vector2 = yieldAPossiblePlacement();
+                    Obstacle obs = new Obstacle(vector2.x, vector2.y, obstacleTexture);
+                    obstacles.add(obs);
+                }
             }
         }
     }
@@ -214,21 +238,7 @@ public class MainGame extends ScreenAdapter {
         }
     }
 
-    public void draw() {
-        batch.setProjectionMatrix(camera.projection);
-        batch.setTransformMatrix(camera.view);
 
-        batch.begin();
-
-        // todo - if using textures
-        String scoreText = String.format("%1$s", score);
-        layout.setText(bitmapFont, scoreText);
-        bitmapFont.setColor(Color.WHITE);
-        bitmapFont.draw(batch, scoreText, SCREEN_WIDTH / 2 - layout.width, SCREEN_HEIGHT - ((GRID_CELL * 3)/2) );
-
-        batch.end();
-
-    }
 
     // for difficulty levels 2 and 3
     public void placeBoundary()
@@ -239,13 +249,13 @@ public class MainGame extends ScreenAdapter {
             {
                 for (int x = 0; x < GAME_WIDTH + 1; x += GRID_CELL)
                 {
-                    obstacles.add(new Obstacle(x, y));
+                    obstacles.add(new Obstacle(x, y, obstacleTexture));
                 }
             } else
             {
                 // place y at either side
-                obstacles.add(new Obstacle(0, y));
-                obstacles.add(new Obstacle(GAME_WIDTH - GRID_CELL, y));
+                obstacles.add(new Obstacle(0, y, obstacleTexture));
+                obstacles.add(new Obstacle(GAME_WIDTH - GRID_CELL, y, obstacleTexture));
             }
         }
     }
@@ -256,18 +266,10 @@ public class MainGame extends ScreenAdapter {
         boolean uPressed = Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W);
         boolean dPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S);
 
-        //boolean plusPressed = Gdx.input.isKeyPressed(Input.Keys.PLUS);
-        //boolean minusPressed = Gdx.input.isKeyPressed(Input.Keys.MINUS);
-
         if (lPressed && CurrentDirection != Direction.RIGHT) NextDirection = Direction.LEFT;
         if (rPressed && CurrentDirection != Direction.LEFT) NextDirection = Direction.RIGHT;
         if (uPressed && CurrentDirection != Direction.DOWN) NextDirection = Direction.UP;
         if (dPressed && CurrentDirection != Direction.UP) NextDirection = Direction.DOWN;
-
-        //if (plusPressed) {
-        //    minNextMoveAllowed -= 0.0005f;
-        //   Gdx.app.log("MAIN", Float.toString(minNextMoveAllowed));
-       // }
 
     }
 
@@ -316,7 +318,7 @@ public class MainGame extends ScreenAdapter {
         if (!fruitInPlace) {
 
             Vector2 vector2 = yieldAPossiblePlacement();
-            fruit = new Fruit(vector2.x, vector2.y);
+            fruit = new Fruit(vector2.x, vector2.y, fruitTexture);
 
             fruitInPlace = true;
         }
@@ -327,9 +329,9 @@ public class MainGame extends ScreenAdapter {
     /// or on top o
     private Vector2 yieldAPossiblePlacement() {
 
-        boolean isvalid  = false;
+        boolean isvalid;
 
-        Vector2 testVector = new Vector2(0, 0);
+        Vector2 testVector;
 
         float placeX = 0, placeY = 0;
 
@@ -352,6 +354,7 @@ public class MainGame extends ScreenAdapter {
                 if (floatsAreEqual(testVector.x, part.getPosx()) && floatsAreEqual(testVector.y, part.getPosy()))
                 {
                     isvalid = false;
+                    break; // no point continuing ...
                 }
             }
 
@@ -367,6 +370,7 @@ public class MainGame extends ScreenAdapter {
 
                     if ( floatsAreEqual(testVector.x, obs.getX()) && floatsAreEqual(testVector.y, obs.getY())) {
                         isvalid = false;
+                        break;
                     }
 
                 }
@@ -397,14 +401,14 @@ public class MainGame extends ScreenAdapter {
             }
 
             if (isvalid) {
-                Gdx.app.log("MAIN", "Placement is deemed valid");
+                // Gdx.app.log("MAIN", "Placement is deemed valid");
                 break;
             }
 
 
         }
 
-        Gdx.app.log("MAIN", "X; " + testVector.x + " Y: " + testVector.y);
+        //Gdx.app.log("MAIN", "X; " + testVector.x + " Y: " + testVector.y);
         return testVector;
     }
 
@@ -423,29 +427,72 @@ public class MainGame extends ScreenAdapter {
 
     }
 
+    public void draw() {
+        batch.setProjectionMatrix(camera.projection);
+        batch.setTransformMatrix(camera.view);
+
+        batch.begin();
+
+        // todo - if using textures
+        String scoreText = Integer.toString(score);
+        layout.setText(bitmapFont, scoreText);
+        bitmapFont.setColor(Color.WHITE);
+
+        bitmapFont.draw(batch, scoreText, SCREEN_WIDTH / 2 - layout.width / 2, SCREEN_HEIGHT - ((GRID_CELL * 3)/2) );
+
+
+        batch.draw(background, 0, 0);
+
+        if (fruitInPlace)
+            fruit.render(batch);
+
+        if (obstacles.size > 0)
+        {
+            for (Obstacle obs : obstacles)
+            {
+                obs.render(batch);
+            }
+        }
+
+        head.render(batch);
+        for (SnakePart sp : snake) {
+            sp.render(batch);
+        }
+
+
+        if (currentState == GameState.GameOver) {
+            String gameover = "GAME OVER!";
+            layout.setText(bitmapFont, gameover);
+            bitmapFont.draw(batch, gameover, SCREEN_WIDTH / 2 - layout.width / 2, SCREEN_HEIGHT / 2 - layout.height / 2);
+        }
+
+        batch.end();
+
+    }
+
     public void drawDebug() {
         shapeRenderer.setProjectionMatrix(camera.projection);
         shapeRenderer.setTransformMatrix(camera.view);
         shapeRenderer.setAutoShapeType(true);
         shapeRenderer.setColor(Color.GOLD);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        drawGrid();
+        // drawGrid();
 
-        if (obstacles.size > 0)
-        {
-            for (Obstacle obs : obstacles)
-            {
-                obs.renderDebug(shapeRenderer);
-            }
-        }
+//        if (obstacles.size > 0)
+//        {
+//            for (Obstacle obs : obstacles)
+//            {
+//                obs.renderDebug(shapeRenderer);
+//            }
+//        }
 
-        if (fruitInPlace)
-            fruit.renderDebug(shapeRenderer);
+        //if (fruitInPlace)
+        //    fruit.renderDebug(shapeRenderer);
 
-        head.renderDebug(shapeRenderer);
-        for (SnakePart sp : snake) {
-            sp.renderDebug(shapeRenderer);
-        }
+        //head.renderDebug(shapeRenderer);
+        //for (SnakePart sp : snake) {
+        //    sp.renderDebug(shapeRenderer);
+        //}
 
         shapeRenderer.end();
     }
